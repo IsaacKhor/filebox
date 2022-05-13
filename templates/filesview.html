@@ -1,6 +1,6 @@
 {{template "header.html"}}
 
-<form id="file-upload-form" class="row" action="/files">
+<form id="file-upload-form" class="row" action="/files" method="post" enctype="multipart/form-data">
   <div class="mb-3 col-sm-9">
     <input name="filename" id="filename" class="form-control" type="file"
            multiple=""/>
