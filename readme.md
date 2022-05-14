@@ -53,7 +53,15 @@ is designed with expansion for this in mind.
 
 # Installation
 
-Stub
+```
+git clone https://github.com/IsaacKhor/filebox.git
+cd filebox
+mkdir files
+echo '[]' > files/filesdb.json
+vim config.json # Set the variables up
+go build
+./filebox
+```
 
 # Development
 

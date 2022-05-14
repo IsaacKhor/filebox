@@ -125,11 +125,9 @@ func uploadFile(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Invalid upload POST request")
 	}
-	files := form.File["files"]
-	log.Println(form, files)
 
+	files := form.File["files"]
 	for _, file := range files {
-		log.Println("Uploading: ", file)
 		saveFile(file)
 	}
 
@@ -137,6 +135,7 @@ func uploadFile(c echo.Context) error {
 }
 
 func saveFile(file *multipart.FileHeader) {
+	log.Println("Uploading: ", file.Filename, file.Size)
 	entry := CreateFileEntry(file.Filename, file.Size)
 
 	src := panicOnErr(file.Open())
