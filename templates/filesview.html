@@ -1,12 +1,21 @@
 {{template "header.html"}}
 
-<form id="file-upload-form" class="row" action="/files" method="post" enctype="multipart/form-data">
-  <div class="mb-3 col-sm-9">
+<div class="row mb-2">
+  <span id="file-upload-progtext" class="col-3">
+    Progress: N/A
+  </span>
+  <div class="col-6">
+    <progress id="file-upload-progbar" class="col-12" value="0" max="100"></progress>
+  </div>
+</div>
+<form id="file-upload-form" class="row mb-4" action="/files" method="post" enctype="multipart/form-data">
+  <div class="col-sm-9">
     <input name="files" id="filename" class="form-control" type="file" multiple=""/>
-    <div id="form-text">Select the file you want to upload.</div>
   </div>
   <div class="col-sm-3">
-    <button type="submit" class="btn btn-primary">Upload</button>
+    <button id="btn-upload-file" type="submit" class="btn btn-primary">Upload
+    </button>
+    <button id="btn-cancel-upload" type="submit" class="btn btn-danger">Cancel</button>
   </div>
 </form>
 
