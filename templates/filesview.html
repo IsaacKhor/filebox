@@ -2,8 +2,7 @@
 
 <form id="file-upload-form" class="row" action="/files" method="post" enctype="multipart/form-data">
   <div class="mb-3 col-sm-9">
-    <input name="filename" id="filename" class="form-control" type="file"
-           multiple=""/>
+    <input name="files" id="filename" class="form-control" type="file" multiple=""/>
     <div id="form-text">Select the file you want to upload.</div>
   </div>
   <div class="col-sm-3">
@@ -32,7 +31,7 @@
   <tr data-fileid="{{.Id}}">
     <td><input class="file-selector" type="checkbox"/></td>
     <td><a href="/files/{{.Id}}">{{.Name}}</a></td>
-    <td>{{.Size}}</td>
+    <td>{{ToBinarySuffix .Size}}</td>
     <td>{{.UploadDate.Format "2006-01-02 15:04:05"}}</td>
   </tr>
   {{else}}

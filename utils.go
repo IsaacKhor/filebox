@@ -1,17 +1,49 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/labstack/gommon/log"
+	"golang.org/x/exp/constraints"
+	"io"
+	"io/ioutil"
+	"os"
 	"strconv"
 )
 
+type FileboxConfig struct {
+	DbPath    string
+	FilesPath string
+	AuthToken string
+}
+
+const (
+	ConfigPath = "./config.json"
+)
+
+var (
+	Config = FileboxConfig{
+		DbPath:    "./files/filesdb.json",
+		FilesPath: "./files",
+		AuthToken: "DEFAULT_TOKEN",
+	}
+)
+
+func loadConfig() {
+	file := panicOnErr(os.OpenFile(ConfigPath, os.O_CREATE|os.O_RDWR,
+		0644))
+	defer closeOrPanic(file)
+
+	content := panicOnErr(ioutil.ReadAll(file))
+	checkErr(json.Unmarshal(content, &Config))
+}
+
 // ToBinarySuffix assumes that we don't have sizes > 1TiB
-func ToBinarySuffix(filesize int) string {
+func ToBinarySuffix(filesize int64) string {
 	suffixes := []string{"", "KiB", "MiB", "GiB", "TiB"}
 	newsize := float64(filesize)
 
 	i := 0
-	for newsize < 1024 {
+	for newsize > 1024 {
 		newsize = newsize / 1024
 		i++
 	}
@@ -27,7 +59,29 @@ func checkErr(e error) {
 	}
 }
 
-func dieOnErr2[T any](x T, e error) T {
-	checkErr(e)
+func panicOnErr[T any](x T, e error) T {
+	if e != nil {
+		log.Error(e)
+		panic(e)
+	}
 	return x
+}
+
+func closeOrPanic(x io.Closer) {
+	checkErr(x.Close())
+}
+
+func max[T constraints.Ordered](a T, b T) T {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func i64ToStr(i int64) string {
+	return strconv.FormatInt(i, 10)
+}
+
+func strToI64(s string) (int64, error) {
+	return strconv.ParseInt(s, 10, 64)
 }

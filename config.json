@@ -1,0 +1,5 @@
+{
+  "DbPath": "files/filesdb.json",
+  "FilesPath": "files/",
+  "AuthToken": "DEFAULT_TOKEN"
+}

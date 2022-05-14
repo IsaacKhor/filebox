@@ -2,25 +2,34 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
 	"html/template"
 	"io"
+	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"time"
 )
 
 func main() {
-	log.SetLevel(log.DEBUG)
+	loadConfig()
+	fileEntries = loadFileEntries(Config.DbPath)
+	// Create directory if it doesn't exist
+	err := os.MkdirAll(Config.FilesPath, 0755)
+	if err != nil && !os.IsExist(err) {
+		log.Fatal(err)
+	}
 
 	ech := echo.New()
 	ech.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(10)))
-	ech.Use(middleware.Logger())
+	ech.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "REQ ${time_rfc3339}: ${remote_ip} ${method} ${uri}. " +
+			"I/O ${bytes_in}/${bytes_out}. " +
+			"${status} in ${latency_human}.\n",
+	}))
 	ech.Use(middleware.Recover())
 
 	t := template.New("")
@@ -46,7 +55,7 @@ func main() {
 	// Start server
 	go func() {
 		if err := ech.Start(":8080"); err != nil {
-			ech.Logger.Fatal(err)
+			ech.Logger.Error(err)
 		}
 	}()
 
@@ -55,12 +64,12 @@ func main() {
 
 	// Gracefully shutdown
 	<-sigc
-	writeFileEntries(DbPath)
-	fmt.Println("SIGINT: cleaning up and shutting down server")
+	writeFileEntries(Config.DbPath)
+	log.Println("SIGINT: cleaning up and shutting down server")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := ech.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 
@@ -75,17 +84,61 @@ func (t *Template) Render(
 
 func downloadFile(c echo.Context) error {
 	ids := c.Param("fileid")
-	id := dieOnErr2(strconv.Atoi(ids))
+	id, err := strToI64(ids)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid fileid")
+	}
+
+	if !HasFileEntry(id) {
+		return c.String(http.StatusNotFound, "Fileid not found")
+	}
+
 	entry := GetEntryById(id)
 	return c.File(entry.GetFilepath())
 }
 
 func uploadFile(c echo.Context) error {
-	return c.String(http.StatusNotImplemented, "Not implemented")
+	form, err := c.MultipartForm()
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid upload POST request")
+	}
+	files := form.File["files"]
+	log.Println(form, files)
+
+	for _, file := range files {
+		log.Println("Uploading: ", file)
+		saveFile(file)
+	}
+
+	return c.Render(http.StatusCreated, "postUpload.html", nil)
+}
+
+func saveFile(file *multipart.FileHeader) {
+	entry := CreateFileEntry(file.Filename, file.Size)
+
+	src := panicOnErr(file.Open())
+	defer closeOrPanic(src)
+
+	dst := panicOnErr(os.Create(entry.GetFilepath()))
+	defer closeOrPanic(dst)
+
+	_ = panicOnErr(io.Copy(dst, src))
 }
 
 func deleteFile(c echo.Context) error {
-	return c.String(http.StatusNotImplemented, "Not implemented")
+	ids := c.Param("fileid")
+	id, err := strToI64(ids)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid fileid")
+	}
+	if !HasFileEntry(id) {
+		return c.String(http.StatusNotFound, "Fileid not found")
+	}
+
+	entry := GetEntryById(id)
+	checkErr(os.Remove(entry.GetFilepath()))
+	RemoveFileEntry(id)
+	return c.String(http.StatusAccepted, "File deleted")
 }
 
 func allViews(c echo.Context) error {

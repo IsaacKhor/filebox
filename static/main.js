@@ -40,6 +40,14 @@ function getCheckboxFromRow(row) {
     return row.querySelector('input[type=checkbox]')
 }
 
-function downloadFiles() {}
-function deleteFiles() {}
-function createView() {}
+function downloadFiles() {
+    alert("Not implemented")
+}
+
+function deleteFiles() {
+    alert("Not implemented")
+}
+
+function createView() {
+    alert("Not implemented")
+}
