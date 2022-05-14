@@ -1,5 +1,9 @@
 {
   "DbPath": "files/filesdb.json",
   "FilesPath": "files/",
-  "AuthToken": "DEFAULT_TOKEN"
+  "AuthToken": "DEFAULT_TOKEN",
+  "CertificatePath": "/etc/letsencrypt/live/amorium.isaackhor.com/fullchain.pem",
+  "PrivKeyPath": "/etc/letsencrypt/live/amorium.isaackhor.com/privkey.pem",
+  "Production": false,
+  "ProductionPort": 443
 }

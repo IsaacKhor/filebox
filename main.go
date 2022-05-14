@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/subtle"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"html/template"
@@ -30,6 +32,7 @@ func main() {
 			"I/O ${bytes_in}/${bytes_out}. " +
 			"${status} in ${latency_human}.\n",
 	}))
+	ech.Use(middleware.BasicAuth(checkToken))
 	ech.Use(middleware.Recover())
 
 	t := template.New("")
@@ -53,11 +56,7 @@ func main() {
 	ech.File("/favicon.ico", "static/favicon.ico")
 
 	// Start server
-	go func() {
-		if err := ech.Start(":8080"); err != nil {
-			ech.Logger.Error(err)
-		}
-	}()
+	go startServer(ech, Config)
 
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, os.Interrupt)
@@ -71,6 +70,30 @@ func main() {
 	if err := ech.Shutdown(ctx); err != nil {
 		log.Println(err)
 	}
+}
+
+func startServer(ech *echo.Echo, config FileboxConfig) {
+	// Test environment, run at port 8080 over http
+	if !config.Production {
+		if err := ech.Start(":8080"); err != nil {
+			ech.Logger.Error(err)
+		}
+	}
+
+	addr := fmt.Sprintf(":%d", config.ProductionPort)
+	err := ech.StartTLS(addr, config.CertificatePath, config.PrivKeyPath)
+	if err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
+}
+
+func checkToken(username string, pwd string, ctx echo.Context) (bool, error) {
+	// Password is ignored, use username is auth token
+	if subtle.ConstantTimeCompare(
+		[]byte(username), []byte(Config.AuthToken)) == 1 {
+		return true, nil
+	}
+	return false, nil
 }
 
 type Template struct {

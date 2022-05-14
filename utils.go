@@ -7,13 +7,18 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"strconv"
 )
 
 type FileboxConfig struct {
-	DbPath    string
-	FilesPath string
-	AuthToken string
+	DbPath          string
+	FilesPath       string
+	AuthToken       string
+	PrivKeyPath     string
+	CertificatePath string
+	Production      bool
+	ProductionPort  int
 }
 
 const (
@@ -22,9 +27,13 @@ const (
 
 var (
 	Config = FileboxConfig{
-		DbPath:    "./files/filesdb.json",
-		FilesPath: "./files",
-		AuthToken: "DEFAULT_TOKEN",
+		DbPath:          "./files/filesdb.json",
+		FilesPath:       "./files",
+		AuthToken:       "DEFAULT_TOKEN",
+		CertificatePath: "",
+		PrivKeyPath:     "",
+		Production:      false,
+		ProductionPort:  443,
 	}
 )
 
@@ -84,4 +93,12 @@ func i64ToStr(i int64) string {
 
 func strToI64(s string) (int64, error) {
 	return strconv.ParseInt(s, 10, 64)
+}
+
+func isRoot() bool {
+	currentUser, err := user.Current()
+	if err != nil {
+		log.Fatalf("[isRoot] Unable to get current user: %s", err)
+	}
+	return currentUser.Username == "root"
 }
