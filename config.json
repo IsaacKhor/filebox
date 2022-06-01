@@ -6,5 +6,5 @@
   "PrivKeyPath": "/etc/letsencrypt/live/amorium.isaackhor.com/privkey.pem",
   "Production": false,
   "ProductionPort": 443,
-  "Hostname": "localhost:8080"
+  "Host": "localhost:8080"
 }
