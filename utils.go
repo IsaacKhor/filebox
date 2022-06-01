@@ -19,6 +19,7 @@ type FileboxConfig struct {
 	CertificatePath string
 	Production      bool
 	ProductionPort  int
+	Host            string
 }
 
 const (
@@ -34,6 +35,7 @@ var (
 		PrivKeyPath:     "",
 		Production:      false,
 		ProductionPort:  443,
+		Host:            "localhost:8080",
 	}
 )
 

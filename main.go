@@ -26,9 +26,10 @@ func main() {
 	}
 
 	ech := echo.New()
+	ech.Use(checkHostname)
 	ech.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(10)))
 	ech.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "REQ ${time_rfc3339}: ${remote_ip} ${method} ${uri}. " +
+		Format: "REQ ${time_rfc3339}: ${remote_ip} ${method} ${host} ${uri}. " +
 			"I/O ${bytes_in}/${bytes_out}. " +
 			"${status} in ${latency_human}.\n",
 	}))
@@ -87,7 +88,7 @@ func startServer(ech *echo.Echo, config FileboxConfig) {
 	}
 }
 
-func checkToken(username string, pwd string, ctx echo.Context) (bool, error) {
+func checkToken(username string, _ string, _ echo.Context) (bool, error) {
 	// Password is ignored, use username is auth token
 	if subtle.ConstantTimeCompare(
 		[]byte(username), []byte(Config.AuthToken)) == 1 {
@@ -96,12 +97,24 @@ func checkToken(username string, pwd string, ctx echo.Context) (bool, error) {
 	return false, nil
 }
 
+// Make sure that hostname matches what we expect, don't respond to brute-force
+// ip scan spam requests
+func checkHostname(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		host := c.Request().Host
+		if host == Config.Host {
+			return next(c)
+		}
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+}
+
 type Template struct {
 	templates *template.Template
 }
 
 func (t *Template) Render(
-	w io.Writer, name string, data interface{}, c echo.Context) error {
+	w io.Writer, name string, data interface{}, _ echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
