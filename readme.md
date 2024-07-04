@@ -51,7 +51,7 @@ This would require the implementation of:
 The feature set is a little too big at this time to implement, but the app
 is designed with expansion for this in mind.
 
-## Installation
+## Installation and deployment
 
 ```
 git clone https://github.com/IsaacKhor/filebox.git
@@ -63,11 +63,25 @@ go build
 ./filebox
 ```
 
+I highly recommend deploying this with cloudflare tunnels (I get enterprise
+features for free by working there, but tunnels are free for everyone). This
+greatly simplifies deployment by not needing to do things like setting up
+encryption, provisioning certificates, etc.
+
+The config is simple:
+
+```
+ingress:
+  - hostname: filebox.isaackhor.com
+    service: http://localhost:7001
+  <... other routes ...>
+```
+
 ## Configuration
 
 ```
-DbPath: path to json file containing details about uploaded files
-FilesPath: directory to store files
-ProductionPort: port to host the server
-Host: the HTTP host that incoming requests should have
+DbPath:     path to json file containing details about uploaded files
+FilesPath:  directory to store files
+Port:       port to host the server
+Host:       the HTTP host that incoming requests should have
 ```

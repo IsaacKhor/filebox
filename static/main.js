@@ -67,7 +67,7 @@ function uploadFiles(ev) {
         progressBar.value = ev.loaded / ev.total * 100
         progText.textContent = `Progress: ${ev.loaded}/${ev.total}`
     })
-    xhr.upload.addEventListener('load', ev => window.location.reload())
+    // xhr.upload.addEventListener('load', ev => window.location.reload())
     xhr.upload.addEventListener('error', ev => {
         console.error(ev)
         alert("An error occurred during file upload. Check logs for details")
