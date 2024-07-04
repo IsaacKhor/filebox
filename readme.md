@@ -35,7 +35,7 @@ something I host and wrote myself.
 The codebase is intentionally kept small and compact to aid in auditing that
 it says what it does on the label (not because I'm lazy I swear).
 
-# Other users
+## Other users
 
 In service of the "file too big for email" use case, I'm considering some 
 kind of feature where a third party may upload to the same instance so I may 
@@ -51,7 +51,7 @@ This would require the implementation of:
 The feature set is a little too big at this time to implement, but the app
 is designed with expansion for this in mind.
 
-# Installation
+## Installation
 
 ```
 git clone https://github.com/IsaacKhor/filebox.git
@@ -63,8 +63,11 @@ go build
 ./filebox
 ```
 
-# Development
+## Configuration
 
-Stub
-
-# Architecture details
+```
+DbPath: path to json file containing details about uploaded files
+FilesPath: directory to store files
+ProductionPort: port to host the server
+Host: the HTTP host that incoming requests should have
+```

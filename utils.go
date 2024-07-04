@@ -2,24 +2,22 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/labstack/gommon/log"
-	"golang.org/x/exp/constraints"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/user"
 	"strconv"
+
+	"github.com/labstack/gommon/log"
+	"golang.org/x/exp/constraints"
 )
 
 type FileboxConfig struct {
-	DbPath          string
-	FilesPath       string
-	AuthToken       string
-	PrivKeyPath     string
-	CertificatePath string
-	Production      bool
-	ProductionPort  int
-	Host            string
+	DbPath    string
+	FilesPath string
+	AuthToken string
+	Port      int
+	Host      string
 }
 
 const (
@@ -28,14 +26,11 @@ const (
 
 var (
 	Config = FileboxConfig{
-		DbPath:          "./files/filesdb.json",
-		FilesPath:       "./files",
-		AuthToken:       "DEFAULT_TOKEN",
-		CertificatePath: "",
-		PrivKeyPath:     "",
-		Production:      false,
-		ProductionPort:  443,
-		Host:            "localhost:8080",
+		DbPath:    "./files/filesdb.json",
+		FilesPath: "./files",
+		AuthToken: "DEFAULT_TOKEN",
+		Port:      7001,
+		Host:      "filebox.isaackhor.com",
 	}
 )
 

@@ -4,8 +4,6 @@ import (
 	"context"
 	"crypto/subtle"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"html/template"
 	"io"
 	"log"
@@ -14,6 +12,9 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -74,24 +75,16 @@ func main() {
 }
 
 func startServer(ech *echo.Echo, config FileboxConfig) {
-	// Test environment, run at port 8080 over http
-	if !config.Production {
-		if err := ech.Start(":8080"); err != nil {
-			ech.Logger.Error(err)
-		}
-	}
-
-	addr := fmt.Sprintf(":%d", config.ProductionPort)
-	err := ech.StartTLS(addr, config.CertificatePath, config.PrivKeyPath)
+	addr := fmt.Sprintf(":%d", config.Port)
+	err := ech.Start(addr)
 	if err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
 }
 
-func checkToken(username string, _ string, _ echo.Context) (bool, error) {
-	// Password is ignored, use username is auth token
-	if subtle.ConstantTimeCompare(
-		[]byte(username), []byte(Config.AuthToken)) == 1 {
+func checkToken(username string, password string, _ echo.Context) (bool, error) {
+	// TODO add users support; for now just compare password
+	if subtle.ConstantTimeCompare([]byte(password), []byte(Config.AuthToken)) == 1 {
 		return true, nil
 	}
 	return false, nil

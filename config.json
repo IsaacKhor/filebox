@@ -1,10 +1,7 @@
 {
   "DbPath": "files/filesdb.json",
   "FilesPath": "files/",
-  "AuthToken": "DEFAULT_TOKEN",
-  "CertificatePath": "/etc/letsencrypt/live/amorium.isaackhor.com/fullchain.pem",
-  "PrivKeyPath": "/etc/letsencrypt/live/amorium.isaackhor.com/privkey.pem",
-  "Production": false,
-  "ProductionPort": 443,
-  "Host": "localhost:8080"
+  "AuthToken": "clarence filebox magic",
+  "ProductionPort": 7001,
+  "Host": "filebox.isaackhor.com"
 }
