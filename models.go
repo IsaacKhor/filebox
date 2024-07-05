@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 )
 
@@ -32,6 +33,9 @@ func GetFileEntries() []FileEntry {
 	for _, v := range fileEntries {
 		ret = append(ret, v)
 	}
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].UploadDate.After(ret[j].UploadDate)
+	})
 	return ret
 }
 
