@@ -27,7 +27,7 @@ func main() {
 	}
 
 	ech := echo.New()
-	ech.Use(checkHostname)
+	// ech.Use(checkHostname)
 	ech.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(10)))
 	ech.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "REQ ${time_rfc3339}: ${remote_ip} ${method} ${host} ${uri}. " +
